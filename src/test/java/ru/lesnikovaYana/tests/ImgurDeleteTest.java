@@ -25,7 +25,6 @@ public class ImgurDeleteTest extends BaseTest{
                 .statusCode(200);
     }
 
-    //Не знаю почему не работает
     @Test
     void deleteImageDeleteHashPositiveTest() {
        getDeleteHash();
@@ -33,7 +32,7 @@ public class ImgurDeleteTest extends BaseTest{
         given()
                 .header("Authorization", token)
                 .when()
-                .delete("https://api.imgur.com/3/image/{{imageDeleteHash}}", deleteHash)
+                .delete("https://api.imgur.com/3/image/{imageDeleteHash}", deleteHash)
                 .prettyPeek()
                 .then()
                 .body("success", equalTo(true))
