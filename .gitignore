@@ -1,3 +1,5 @@
 .idea
 target
 .allure
+/main/resources/generator-config.xml
+/main/resources/mybatis-config.xml

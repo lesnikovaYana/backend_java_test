@@ -1,35 +1,40 @@
-package ru.lesnikovaYana.tests;
+package ru.lesnikovaYana;
 
-import io.qameta.allure.restassured.AllureRestAssured;
-import io.restassured.RestAssured;
+import com.github.javafaker.Faker;
+import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeAll;
-
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Properties;
+import org.junit.jupiter.api.BeforeEach;
+import ru.lesnikovaYana.db.dao.ProductsMapper;
+import ru.lesnikovaYana.dto.CategoryResponse;
+import ru.lesnikovaYana.dto.CategoryResponse.Product;
+import ru.lesnikovaYana.enam.CategoryType;
+import ru.lesnikovaYana.service.CategoryService;
+import ru.lesnikovaYana.service.ProductService;
+import ru.lesnikovaYana.util.DbUtils;
+import ru.lesnikovaYana.util.RetrofitUtils;
 
 public abstract class BaseTest {
-    static Properties properties = new Properties();
-    static String token;
-    static String username;
+    static CategoryService categoryService;
+    static ProductService productService;
+    static ProductsMapper productsMapper;
+    Product product;
+    Faker faker = new Faker();
 
     @BeforeAll
     static void beforeAll() {
-        RestAssured.enableLoggingOfRequestAndResponseIfValidationFails();
-        RestAssured.filters(new AllureRestAssured());
-        getProperties();
-        token = properties.getProperty("token");
-        username = properties.getProperty("username");
+        categoryService = RetrofitUtils.getRetrofit()
+                .create(CategoryService.class);
+        productService = RetrofitUtils.getRetrofit()
+                .create(ProductService.class);
+        productsMapper = DbUtils.getProductsMapper();
     }
 
-
-    private static void getProperties(){
-        try (InputStream output = new FileInputStream("src/test/resources/application.properties")) {
-            properties.load(output);
-        }
-        catch (IOException e) {
-            e.printStackTrace();
-        }
+    @BeforeEach
+    @SneakyThrows
+    void setUp() {
+        product = new Product()
+                .withTitle(faker.food().ingredient())
+                .withCategoryTitle(CategoryType.FOOD.getTitle())
+                .withPrice((int) (Math.random() * 10000));
     }
 }
