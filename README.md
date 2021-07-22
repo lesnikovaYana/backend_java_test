@@ -1,5 +1,7 @@
-# backend_java_test
-Работа с imgur API [https://www.postman.com/explore/collection/131/imgur-api](http://).
-1. Автоматизируйте тестирование для Images (минимум 10 кейсов), используя rest-assured.
-2. Воспользуйтесь кейсами, которые вы написали в ПЗ №2, и перенесите всю логику из постман-коллекции в код.
-3. Сдайте ссылку на репозиторий с указанием ветки с кодом.
+# Автоматизированное тестирование API сервиса продуктов с использованием Retrofit
+Тесты написаны для API сервиса продуктов [Api Documentation](http://80.78.248.82:8189/market/swagger-ui.html#/).
+Для написания автотестов были использованы технологии Retrofit и OkHttp3. Добавлена поддержка фреймворка MyBatis.
+В будущем планирую уменьшить количество хардкода.
+## Схема и Интеллект-карта тестирования сервиса продуктов
+* [Схема тестирования pdf](https://drive.google.com/file/d/1yvGVJZ3sXznJ_vYz5d7gbuuppQ3eJ5CK/view?usp=sharing)
+* [Интеллект-карта](https://drive.google.com/file/d/16TChjGafIBtMdOt9fgpbN1Nz-KnltLVP/view?usp=sharing)
