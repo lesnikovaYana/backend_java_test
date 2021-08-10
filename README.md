@@ -1,7 +1,14 @@
 # Автоматизированное тестирование API сервиса продуктов с использованием Retrofit
-Тесты написаны для API сервиса продуктов [Api Documentation](http://80.78.248.82:8189/market/swagger-ui.html#/).
+Тесты написаны для API сервиса продуктов. Документацию можно посмотреть по ссылке [Api Documentation](http://80.78.248.82:8189/market/swagger-ui.html#/).
 Для написания автотестов были использованы технологии Retrofit и OkHttp3. Добавлена поддержка фреймворка MyBatis.
-В будущем планирую уменьшить количество хардкода.
-## Схема и Интеллект-карта тестирования сервиса продуктов
-* [Схема тестирования pdf](https://drive.google.com/file/d/1yvGVJZ3sXznJ_vYz5d7gbuuppQ3eJ5CK/view?usp=sharing)
-* [Интеллект-карта](https://drive.google.com/file/d/16TChjGafIBtMdOt9fgpbN1Nz-KnltLVP/view?usp=sharing)
+
+## Инструменты
+* Java 16
+* Allure Framework
+* JUnit 5
+* Retrofit 2
+* MyBatis
+
+## Схема и Интеллект-карта тестирования сервиса
+![Image](https://i.imgur.com/ankrl6b.png)
+> [Схема тестирования pdf](https://drive.google.com/file/d/19qy6ajrV0N87GzibJEM4hC4KKzmFz5Ev/view?usp=sharing)
