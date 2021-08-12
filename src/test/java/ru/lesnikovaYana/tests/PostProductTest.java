@@ -1,19 +1,14 @@
 package ru.lesnikovaYana;
 
-import com.github.javafaker.Faker;
 import lombok.SneakyThrows;
-import okhttp3.ResponseBody;
 import org.hamcrest.CoreMatchers;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import retrofit2.Response;
-import ru.lesnikovaYana.dto.CategoryResponse;
-import ru.lesnikovaYana.enam.CategoryType;
-import ru.lesnikovaYana.service.ProductService;
-import ru.lesnikovaYana.util.DbUtils;
-import ru.lesnikovaYana.util.RetrofitUtils;
+import ru.lesnikovaYana.db.model.Products;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -22,14 +17,13 @@ import static ru.lesnikovaYana.util.DbUtils.deleteProductById;
 
 public class PostProductTest extends BaseTest{
 
-    long id;
-
     @Test
     @SneakyThrows
+    @DisplayName("Заполнены все поля валидными данными")
     void createProductPositiveTest() {
         Response<Product> response = productService.createProduct(product)
                 .execute();
-        id = response.body().getId();
+        long id = response.body().getId();
 
         assertThat(response.isSuccessful(), CoreMatchers.is(true));
         assertThat(response.code(), equalTo(201));
@@ -37,17 +31,58 @@ public class PostProductTest extends BaseTest{
         deleteProductById(productsMapper,id);
     }
 
-    @Test
+    @ParameterizedTest
     @SneakyThrows
-    void createProductValidatingFieldsIncorrectDataTest() {
+    @DisplayName("Валидация полей - некорректные данные: categoryTitle")
+    @NullSource
+    @ValueSource(strings = {"FOOD", "Electr0nik", " ", "Мебель", "Poke mon", "~!@#$%^&*()", " test"})
+    void createProductValidatingFieldsIncorrectCategoryTitleTest(String category) {
         Product incorrectProduct = new Product()
-                .withTitle("♣☺” , “”‘~!@#$%^&*()?>,./<][ /*<!–”, “$")
-                .withPrice(-100)
-                .withCategoryTitle("Electronic"); //код 500 если использовать несуществующую категорию
+                .withTitle("Lamp")
+                .withPrice(100)
+                .withCategoryTitle(category);
 
         Response<Product> response = productService.createProduct(incorrectProduct)
                 .execute();
-        id =  response.body().getId();
+
+        assertThat(response.isSuccessful(), CoreMatchers.is(false));
+        assertThat(response.code(), equalTo(500));
+    }
+
+    @ParameterizedTest
+    @SneakyThrows
+    @DisplayName("Валидация полей - некорректные данные: title")
+    @NullSource
+    @ValueSource(strings = {"FOOD", "Electr0nik", " ", "Мебель", "Poke mon", "~!@#$%^&*()", " test"})
+    void createProductValidatingFieldsIncorrectTitleTest(String title) {
+        Product incorrectProduct = new Product()
+                .withTitle(title)
+                .withPrice(100)
+                .withCategoryTitle("Furniture");
+
+        Response<Product> response = productService.createProduct(incorrectProduct)
+                .execute();
+        long id =  response.body().getId();
+
+        assertThat(response.isSuccessful(), CoreMatchers.is(true));
+        assertThat(response.code(), equalTo(201));
+
+        deleteProductById(productsMapper,id);
+    }
+
+    @ParameterizedTest
+    @SneakyThrows
+    @DisplayName("Валидация полей - некорректные данные: price")
+    @ValueSource(ints = {0, -1283, -7, -1000, -2147483647, 2147483647})
+    void createProductValidatingFieldsIncorrectPriceTest(int price) {
+        Product incorrectProduct = new Product()
+                .withTitle("watermelon")
+                .withPrice(price)
+                .withCategoryTitle("Furniture");
+
+        Response<Product> response = productService.createProduct(incorrectProduct)
+                .execute();
+        long id =  response.body().getId();
 
         assertThat(response.isSuccessful(), CoreMatchers.is(true));
         assertThat(response.code(), equalTo(201));
@@ -57,6 +92,7 @@ public class PostProductTest extends BaseTest{
 
     @Test
     @SneakyThrows
+    @DisplayName("Не заполнено ни одно поле")
     void createProductEmptyFieldsNegativeTest() {
         Product emptyProduct = new Product();
         Response<Product> response = productService.createProduct(emptyProduct)
@@ -67,6 +103,7 @@ public class PostProductTest extends BaseTest{
 
     @Test
     @SneakyThrows
+    @DisplayName("Заполнены не все обязательные поля")
     void createProductNotAllFieldsNegativeTest() {
         Product incompleteProduct = new Product()
                 .withTitle(faker.food().ingredient())
