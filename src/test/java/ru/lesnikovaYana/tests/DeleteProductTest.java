@@ -1,82 +1,62 @@
 package ru.lesnikovaYana;
 
-import com.github.javafaker.Faker;
 import lombok.SneakyThrows;
-import okhttp3.ResponseBody;
-import org.hamcrest.CoreMatchers;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import retrofit2.Response;
-import ru.lesnikovaYana.db.dao.ProductsMapper;
-import ru.lesnikovaYana.dto.CategoryResponse;
 import ru.lesnikovaYana.dto.CategoryResponse.Product;
-import ru.lesnikovaYana.enam.CategoryType;
-import ru.lesnikovaYana.service.ProductService;
-import ru.lesnikovaYana.util.DbUtils;
-import ru.lesnikovaYana.util.RetrofitUtils;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
-import static ru.lesnikovaYana.util.DbUtils.countProducts;
 import static ru.lesnikovaYana.util.DbUtils.deleteProductById;
 
 public class DeleteProductTest extends BaseTest{
-    long id;
 
     @Test
     @SneakyThrows
+    @DisplayName("Удаление существующего объекта")
     void deleteProductPositiveTest(){
-
         Response<Product> response = productService.createProduct(product)
                 .execute();
-        id =  response.body().getId();
+        long id =  response.body().getId();
 
-        Integer countProductsBefore = countProducts(productsMapper);
-        int result = deleteProductById(productsMapper, id);
-        Integer countProductsAfter = countProducts(productsMapper);
+        boolean result = deleteProductById(productsMapper, id);
+        assertThat(result, equalTo(true));
+    }
 
-        assertThat(countProductsAfter, equalTo(countProductsBefore));
-        assertThat(result, equalTo(1));
+    @ParameterizedTest
+    @SneakyThrows
+    @DisplayName("Удаление по невалидному ID")
+    @ValueSource(longs = {0, -1283, -10000, -4556, -2147483647})
+    void deleteProductByIdInvalidNegativeTest(long id){
+        boolean result = deleteProductById(productsMapper, id);
+        assertThat(result, equalTo(false));
+    }
+
+    @ParameterizedTest
+    @SneakyThrows
+    @DisplayName("Удаление по несуществующему ID")
+    @ValueSource(longs = {1, 750599904340651L, 70, 116})
+    void deleteProductByIdNonExistentTest(long id){
+        boolean result = deleteProductById(productsMapper, id);
+        assertThat(result, equalTo(false));
     }
 
     @Test
     @SneakyThrows
-    void deleteProductByIdInvalidNegativeTest(){
-        Integer countProductsBefore = countProducts(productsMapper);
-        int result = deleteProductById(productsMapper, -1283l);
-        Integer countProductsAfter = countProducts(productsMapper);
-
-        assertThat(countProductsAfter, equalTo(countProductsBefore));
-        assertThat(result, equalTo(0));
-    }
-
-    @Test
-    @SneakyThrows
-    void deleteProductByIdNonExistentTest(){
-        Integer countProductsBefore = countProducts(productsMapper);
-        int result = deleteProductById(productsMapper, 1l);
-        Integer countProductsAfter = countProducts(productsMapper);
-
-        assertThat(countProductsAfter, equalTo(countProductsBefore));
-        assertThat(result, equalTo(0));
-    }
-
-    @Test
-    @SneakyThrows
+    @DisplayName("Удаление уже удаленного объекта")
     void deleteAnAlreadyDeletedObjectTest(){
         Response<Product> response = productService.createProduct(product)
                 .execute();
-        id =  response.body().getId();
+        long id =  response.body().getId();
 
-        //здесь count не работает
-        //Integer countProductsBefore = countProducts(productsMapper);
-        int result = deleteProductById(productsMapper, id);
-        //Integer countProductsAfter = countProducts(productsMapper);
-        //assertThat(countProductsAfter, equalTo(countProductsBefore));
-        assertThat(result, equalTo(1));
+        boolean result = deleteProductById(productsMapper, id);
+        assertThat(result, equalTo(true));
 
-        int result2 = deleteProductById(productsMapper, id);
-        assertThat(result2, equalTo(0));
+        boolean result2 = deleteProductById(productsMapper, id);
+        assertThat(result2, equalTo(false));
     }
 }
