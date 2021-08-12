@@ -43,11 +43,11 @@ public class DbUtils {
         return Math.toIntExact(products);
     }
 
-    public static int deleteProductById(ProductsMapper productsMapper, long id){
+    public static boolean deleteProductById(ProductsMapper productsMapper, long id){
         return productsMapper.deleteByPrimaryKey(id);
     }
 
-    public static int updateProduct(ProductsMapper productsMapper, Products product){
+    public static boolean updateProduct(ProductsMapper productsMapper, Products product){
         return productsMapper.updateByPrimaryKey(product);
     }
 }
