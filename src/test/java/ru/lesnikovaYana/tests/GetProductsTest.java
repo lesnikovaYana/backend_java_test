@@ -4,10 +4,7 @@ import com.github.javafaker.Faker;
 import lombok.SneakyThrows;
 import okhttp3.ResponseBody;
 import org.hamcrest.CoreMatchers;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import retrofit2.Response;
 import ru.lesnikovaYana.dto.CategoryResponse;
 import ru.lesnikovaYana.dto.CategoryResponse.Product;
@@ -24,6 +21,7 @@ public class GetProductsTest extends BaseTest {
 
     @Test
     @SneakyThrows
+    @DisplayName("Получение списка")
     void getProductsPositiveTest() {
         Response<ArrayList<Product>> response = productService.getProducts()
                 .execute();
