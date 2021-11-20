@@ -1,8 +1,17 @@
 package ru.lesnikovaYana.tests;
 
+import io.restassured.builder.MultiPartSpecBuilder;
+import io.restassured.builder.ResponseSpecBuilder;
+import io.restassured.http.ContentType;
+import io.restassured.specification.MultiPartSpecification;
+import io.restassured.specification.ResponseSpecification;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import ru.lesnikovaYana.Endpoints;
+import ru.lesnikovaYana.ResourcePath;
 
 import java.io.File;
 import java.io.IOException;
@@ -13,23 +22,21 @@ import static io.restassured.RestAssured.urlEncodingEnabled;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.hamcrest.core.IsNull.notNullValue;
+import static ru.lesnikovaYana.Endpoints.DELETE_UN_AUTHED;
+import static ru.lesnikovaYana.Endpoints.UPLOAD_FILE;
+import static ru.lesnikovaYana.ResourcePath.*;
 
 public class ImgurPositiveUploadTest extends BaseTest{
-    private final String URL_TEST = "https://images.kinorium.com/movie/shot/37317/w1500_127038.jpg";
     protected String imageDeleteHash;
 
     @Test
     void uploadCorrectFileSizeTest() {
         imageDeleteHash = given()
-                .headers("Authorization", token)
-                .multiPart("image", new File("src/test/resources/file_JPG_500kb.jpg"))
+                .multiPart("image", new File(FILE_JPG.getTitle()))
                 .when()
-                .post("https://api.imgur.com/3/upload")
+                .post(UPLOAD_FILE)
                 .prettyPeek()
                 .then()
-                .body("data.id", is(notNullValue()))
-                .body("data.account_url", equalTo(username))
-                .statusCode(200)
                 .extract()
                 .response()
                 .jsonPath()
@@ -39,15 +46,11 @@ public class ImgurPositiveUploadTest extends BaseTest{
     @Test
     void uploadGifExtensionFileTest() {
         imageDeleteHash = given()
-                .headers("Authorization", token)
-                .multiPart("image", new File("src/test/resources/file_gif.gif"))
+                .multiPart("image", new File(FILE_GIF.getTitle()))
                 .when()
-                .post("https://api.imgur.com/3/upload")
+                .post(UPLOAD_FILE)
                 .prettyPeek()
                 .then()
-                .body("data.id", is(notNullValue()))
-                .body("data.account_url", equalTo(username))
-                .statusCode(200)
                 .extract()
                 .response()
                 .jsonPath()
@@ -57,15 +60,11 @@ public class ImgurPositiveUploadTest extends BaseTest{
     @Test
     void uploadPngExtensionFileTest() {
         imageDeleteHash = given()
-                .headers("Authorization", token)
-                .multiPart("image", new File("src/test/resources/file_png.png"))
+                .multiPart("image", new File(FILE_PNG.getTitle()))
                 .when()
-                .post("https://api.imgur.com/3/upload")
+                .post(UPLOAD_FILE)
                 .prettyPeek()
                 .then()
-                .body("data.id", is(notNullValue()))
-                .body("data.account_url", equalTo(username))
-                .statusCode(200)
                 .extract()
                 .response()
                 .jsonPath()
@@ -75,15 +74,11 @@ public class ImgurPositiveUploadTest extends BaseTest{
     @Test
     void uploadBmpExtensionFileTest() {
         imageDeleteHash = given()
-                .headers("Authorization", token)
-                .multiPart("image", new File("src/test/resources/file_bmp.bmp"))
+                .multiPart("image", new File(FILE_BMP.getTitle()))
                 .when()
-                .post("https://api.imgur.com/3/upload")
+                .post(UPLOAD_FILE)
                 .prettyPeek()
                 .then()
-                .body("data.id", is(notNullValue()))
-                .body("data.account_url", equalTo(username))
-                .statusCode(200)
                 .extract()
                 .response()
                 .jsonPath()
@@ -93,15 +88,11 @@ public class ImgurPositiveUploadTest extends BaseTest{
     @Test
     void uploadMp4ExtensionFileTest() {
         imageDeleteHash = given()
-                .headers("Authorization", token)
-                .multiPart("video", new File("src/test/resources/file_mp4.mp4"))
+                .multiPart("video", new File(FILE_MP4.getTitle()))
                 .when()
-                .post("https://api.imgur.com/3/upload")
+                .post(UPLOAD_FILE)
                 .prettyPeek()
                 .then()
-                .body("data.id", is(notNullValue()))
-                .body("data.account_url", equalTo(username))
-                .statusCode(200)
                 .extract()
                 .response()
                 .jsonPath()
@@ -111,15 +102,11 @@ public class ImgurPositiveUploadTest extends BaseTest{
     @Test
     void uploadAviExtensionFileTest() {
         imageDeleteHash = given()
-                .headers("Authorization", token)
-                .multiPart("video", new File("src/test/resources/file_AVI_480_750kB.avi"))
+                .multiPart("video", new File(FILE_AVI.getTitle()))
                 .when()
-                .post("https://api.imgur.com/3/upload")
+                .post(UPLOAD_FILE)
                 .prettyPeek()
                 .then()
-                .body("data.id", is(notNullValue()))
-                .body("data.account_url", equalTo(username))
-                .statusCode(200)
                 .extract()
                 .response()
                 .jsonPath()
@@ -129,15 +116,11 @@ public class ImgurPositiveUploadTest extends BaseTest{
     @Test
     void uploadMovExtensionFileTest() {
         imageDeleteHash = given()
-                .headers("Authorization", token)
-                .multiPart("video", new File("src/test/resources/file_MOV_480_700kB.mov"))
+                .multiPart("video", new File(FILE_MOV.getTitle()))
                 .when()
-                .post("https://api.imgur.com/3/upload")
+                .post(UPLOAD_FILE)
                 .prettyPeek()
                 .then()
-                .body("data.id", is(notNullValue()))
-                .body("data.account_url", equalTo(username))
-                .statusCode(200)
                 .extract()
                 .response()
                 .jsonPath()
@@ -147,15 +130,11 @@ public class ImgurPositiveUploadTest extends BaseTest{
     @Test
     void uploadWebmExtensionFileTest() {
         imageDeleteHash = given()
-                .headers("Authorization", token)
-                .multiPart("video", new File("src/test/resources/file_WEBM_480_900KB.webm"))
+                .multiPart("video", new File(FILE_WEBM.getTitle()))
                 .when()
-                .post("https://api.imgur.com/3/upload")
+                .post(UPLOAD_FILE)
                 .prettyPeek()
                 .then()
-                .body("data.id", is(notNullValue()))
-                .body("data.account_url", equalTo(username))
-                .statusCode(200)
                 .extract()
                 .response()
                 .jsonPath()
@@ -165,15 +144,11 @@ public class ImgurPositiveUploadTest extends BaseTest{
     @Test
     void uploadImageHDFileTest() {
         imageDeleteHash = given()
-                .headers("Authorization", token)
-                .multiPart("image", new File("src/test/resources/file_HD.jpg"))
+                .multiPart("image", new File(FILE_HD.getTitle()))
                 .when()
-                .post("https://api.imgur.com/3/upload")
+                .post(UPLOAD_FILE)
                 .prettyPeek()
                 .then()
-                .body("data.id", is(notNullValue()))
-                .body("data.account_url", equalTo(username))
-                .statusCode(200)
                 .extract()
                 .response()
                 .jsonPath()
@@ -183,15 +158,11 @@ public class ImgurPositiveUploadTest extends BaseTest{
     @Test
     void uploadImage1x1pxFileTest() {
         imageDeleteHash = given()
-                .headers("Authorization", token)
-                .multiPart("image", new File("src/test/resources/file_1x1px.jpg"))
+                .multiPart("image", new File(FILE_1X1PX.getTitle()))
                 .when()
-                .post("https://api.imgur.com/3/upload")
+                .post(UPLOAD_FILE)
                 .prettyPeek()
                 .then()
-                .body("data.id", is(notNullValue()))
-                .body("data.account_url", equalTo(username))
-                .statusCode(200)
                 .extract()
                 .response()
                 .jsonPath()
@@ -201,16 +172,12 @@ public class ImgurPositiveUploadTest extends BaseTest{
     @Test
     void uploadImageUrlTest() {
         imageDeleteHash = given()
-                .headers("Authorization", token)
                 .formParam("type", "url")
-                .multiPart("image", URL_TEST)
+                .multiPart("image", TEST_URL.getTitle())
                 .when()
-                .post("https://api.imgur.com/3/upload")
+                .post(UPLOAD_FILE)
                 .prettyPeek()
                 .then()
-                .body("data.id", is(notNullValue()))
-                .body("data.account_url", equalTo(username))
-                .statusCode(200)
                 .extract()
                 .response()
                 .jsonPath()
@@ -224,16 +191,12 @@ public class ImgurPositiveUploadTest extends BaseTest{
         encodedFile = Base64.getEncoder().encodeToString(byteArray);
 
         imageDeleteHash = given()
-                .headers("Authorization", token)
                 .formParam("type", "base64")
                 .multiPart("image", encodedFile)
                 .when()
-                .post("https://api.imgur.com/3/upload")
+                .post(UPLOAD_FILE)
                 .prettyPeek()
                 .then()
-                .body("data.id", is(notNullValue()))
-                .body("data.account_url", equalTo(username))
-                .statusCode(200)
                 .extract()
                 .response()
                 .jsonPath()
@@ -243,18 +206,14 @@ public class ImgurPositiveUploadTest extends BaseTest{
     @AfterEach
     void tearDown() {
         given()
-                .headers("Authorization", token)
                 .when()
-                .delete("https://api.imgur.com/3/account/{username}/image/{deleteHash}", username, imageDeleteHash)
-                .prettyPeek()
-                .then()
-                .statusCode(200);
+                .delete(DELETE_UN_AUTHED, imageDeleteHash);
     }
 
     private byte[] getFileContent() {
         byte[] byteArray = new byte[0];
         try {
-            byteArray = FileUtils.readFileToByteArray(new File("src/test/resources/file_JPG_500kb.jpg"));
+            byteArray = FileUtils.readFileToByteArray(new File(FILE_JPG.getTitle()));
         } catch (IOException e) {
             e.printStackTrace();
         }
