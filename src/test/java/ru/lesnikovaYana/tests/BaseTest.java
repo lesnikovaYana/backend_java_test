@@ -14,14 +14,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
-import static org.hamcrest.CoreMatchers.is;
-
 public abstract class BaseTest {
-    static Properties properties = new Properties();
-    static RequestSpecification requestSpec;
-    static ResponseSpecification responseSpec;
-    static String token;
-    static String username;
+    private static Properties properties = new Properties();
+    private static RequestSpecification requestSpec;
+    private static ResponseSpecification responseSpec;
+    private static String token;
+    private static String username;
 
     @BeforeAll
     static void beforeAll() {
@@ -39,13 +37,12 @@ public abstract class BaseTest {
                 .build();
 
         responseSpec = new ResponseSpecBuilder()
-                .expectBody("success", is(true))
                 .expectContentType(ContentType.JSON)
                 .expectStatusCode(200)
                 .build();
 
         RestAssured.requestSpecification = requestSpec;
-        //RestAssured.responseSpecification = responseSpec;
+        RestAssured.responseSpecification = responseSpec;
     }
 
 

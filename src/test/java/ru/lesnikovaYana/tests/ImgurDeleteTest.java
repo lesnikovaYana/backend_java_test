@@ -1,99 +1,79 @@
 package ru.lesnikovaYana.tests;
 
-import io.restassured.builder.ResponseSpecBuilder;
-import io.restassured.http.ContentType;
-import io.restassured.path.json.JsonPath;
-import io.restassured.specification.ResponseSpecification;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import ru.lesnikovaYana.ResourcePath;
-
-import java.io.File;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
+import ru.lesnikovaYana.Helper;
 
 import static io.restassured.RestAssured.given;
-import static org.hamcrest.core.IsEqual.equalTo;
 import static ru.lesnikovaYana.Endpoints.*;
-import static ru.lesnikovaYana.tests.ImgurNegativeUploadTest.*;
 
 public class ImgurDeleteTest extends BaseTest{
 
     @Test
+    @DisplayName("Удаление существующего объекта (Authed): ImageHash")
     void deleteImageImageHashPositiveTest() {
         given()
                 .when()
-                .delete(DELETE_AUTHED, HelperJson.getImageJson().getString("data.id"))
-                .prettyPeek();
+                .delete(DELETE_AUTHED, Helper.getImageJson().getString("data.id"));
     }
 
     @Test
+    @DisplayName("Удаление существующего объекта (Un-Authed): DeleteHash")
     void deleteImageDeleteHashPositiveTest() {
         given()
                 .when()
-                .delete(DELETE_UN_AUTHED, HelperJson.getImageJson().getString("data.deletehash"))
-                .prettyPeek();
+                .delete(DELETE_UN_AUTHED, Helper.getImageJson().getString("data.deletehash"));
     }
 
     @Test
+    @DisplayName("Удаление уже удаленного объекта: ImageHash")
     void deletingAlreadyDeletedObjectAuthedTest() {
-        String jsonPath = HelperJson.getImageJson().getString("data.id");
+        String jsonPath = Helper.getImageJson().getString("data.id");
 
         given()
                 .when()
-                .delete(DELETE_AUTHED, jsonPath)
-                .prettyPeek();
+                .delete(DELETE_AUTHED, jsonPath);
 
         given()
                 .when()
-                .delete(DELETE_AUTHED, jsonPath)
-                .prettyPeek();
+                .delete(DELETE_AUTHED, jsonPath);
     }
 
     @Test
+    @DisplayName("Удаление уже удаленного объекта: DeleteHash")
     void deletingAlreadyDeletedObjectUnAuthedTest() {
-        String jsonPath =  HelperJson.getImageJson().getString("data.deletehash");
+        String jsonPath =  Helper.getImageJson().getString("data.deletehash");
 
         given()
                 .when()
-                .delete(DELETE_UN_AUTHED,jsonPath)
-                .prettyPeek();
+                .delete(DELETE_UN_AUTHED,jsonPath);
 
         given()
                 .when()
-                .delete(DELETE_UN_AUTHED,jsonPath)
-                .prettyPeek();
+                .delete(DELETE_UN_AUTHED,jsonPath);
     }
 
-    @Test
-    void deleteInvalidImageHashTest() {
-        given()
-                .expect()
-                .spec(HelperSpec.Error400())
-                .when()
-                .delete(DELETE_AUTHED, "&$@45RJ!k")
-                .prettyPeek();
-    }
-
-    @Test
-    void deleteInvalidDeleteHashTest() {
+    @ParameterizedTest
+    @DisplayName("Удаление по невалидному ImageHash")
+    @ValueSource(strings = {" ", "&$@()#*@!", "п"})
+    void deleteInvalidImageHashTest(String s) {
         given()
                 .expect()
-                .spec(HelperSpec.Error400())
+                .spec(Helper.error400())
                 .when()
-                .delete(DELETE_UN_AUTHED, "&$@45RJ!k")
-                .prettyPeek();
+                .delete(DELETE_AUTHED, s);
     }
 
-    public static class HelperJson {
-        public static JsonPath getImageJson() {
-            JsonPath path = given()
-                    .multiPart("image", new File(ResourcePath.FILE_JPG.getTitle()))
-                    .when()
-                    .post(UPLOAD_FILE)
-                    .then()
-                    .extract()
-                    .response()
-                    .jsonPath();
-            return path;
-        }
+    @ParameterizedTest
+    @DisplayName("Удаление по невалидному DeleteHash")
+    @ValueSource(strings = {" ", "&$@()#*@!", "п"})
+    void deleteInvalidDeleteHashTest(String s) {
+        given()
+                .expect()
+                .spec(Helper.error400())
+                .when()
+                .delete(DELETE_UN_AUTHED, s);
     }
-
 }

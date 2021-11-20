@@ -7,7 +7,6 @@ public enum ResourcePath {
     FILE_OGG("src/test/resources/file_OGG_480_1_7mg.ogg"),
     FILE_CHANGED_EXE("src/test/resources/file_changed_exe.jpg"),
     FILE_DOCX("src/test/resources/file_docx.docx"),
-    FILE_EMPTY("/path/to/file"),
     FILE_JPG("src/test/resources/file_JPG_500kb.jpg"),
     FILE_GIF("src/test/resources/file_gif.gif"),
     FILE_PNG("src/test/resources/file_png.png"),

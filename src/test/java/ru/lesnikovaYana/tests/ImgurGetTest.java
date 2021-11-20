@@ -1,70 +1,46 @@
 package ru.lesnikovaYana.tests;
 
-import io.restassured.path.json.JsonPath;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import ru.lesnikovaYana.ResourcePath;
-
-import java.io.File;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullSource;
+import org.junit.jupiter.params.provider.ValueSource;
+import ru.lesnikovaYana.Helper;
 
 import static io.restassured.RestAssured.given;
 import static ru.lesnikovaYana.Endpoints.*;
-import static ru.lesnikovaYana.tests.ImgurDeleteTest.*;
-import static ru.lesnikovaYana.tests.ImgurNegativeUploadTest.*;
 
 public class ImgurGetTest extends BaseTest{
-    private String imageDeleteHash;
+    private String title = Helper.getImageJson().getString("data.id");
 
     @Test
+    @DisplayName("Получить изображение")
     void getImagePositiveTest() {
-
-        imageDeleteHash = given()
+        given()
                 .when()
-                .get(GET_IMAGE, HelperJson.getImageJson().getString("data.id"))
-                .prettyPeek()
+                .get(GET_IMAGE, title)
                 .then()
                 .extract()
-                .response()
                 .jsonPath()
                 .getString("data.deletehash");
         tearDown();
     }
 
-    @Test
-    void getImageInvalidImageHashNegativeTest() {
+    @ParameterizedTest
+    @DisplayName("Получить изображение по невалидному ImageHash")
+    @ValueSource(strings = {" ", "&$@()#*@!", "п"})
+    void getImageInvalidImageHashNegativeTest(String s) {
         given()
                 .expect()
-                .spec(HelperSpec.Error400())
+                .spec(Helper.error400())
                 .when()
-                .get(GET_IMAGE, "&$@45RJ!k")
-                .prettyPeek();
-    }
-
-    @Test
-    void getImageEmptyNegativeTest() {
-        String jsonPath = HelperJson.getImageJson().getString("data.id");
-
-        imageDeleteHash = given()
-                .when()
-                .get(GET_IMAGE, jsonPath)
-                .prettyPeek()
-                .then()
-                .extract()
-                .response()
-                .jsonPath()
-                .getString("data.deletehash");
-        tearDown();
-
-        given()
-                .expect()
-                .spec(HelperSpec.Error404())
-                .when()
-                .get(GET_IMAGE, jsonPath)
-                .prettyPeek();
+                .get(GET_IMAGE, s);
     }
 
     private void tearDown() {
         given()
                 .when()
-                .delete(DELETE_UN_AUTHED, imageDeleteHash);
+                .delete(DELETE_AUTHED, title);
     }
+
 }

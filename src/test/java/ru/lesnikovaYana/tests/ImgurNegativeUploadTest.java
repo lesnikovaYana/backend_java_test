@@ -1,123 +1,67 @@
 package ru.lesnikovaYana.tests;
 
-import io.restassured.builder.ResponseSpecBuilder;
-import io.restassured.http.ContentType;
-import io.restassured.specification.ResponseSpecification;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
+import org.junit.jupiter.params.provider.ValueSource;
+import ru.lesnikovaYana.Helper;
+import ru.lesnikovaYana.ResourcePath;
 
 import java.io.File;
 
 import static io.restassured.RestAssured.given;
-import static org.hamcrest.core.IsEqual.equalTo;
 import static ru.lesnikovaYana.Endpoints.UPLOAD_FILE;
 import static ru.lesnikovaYana.ResourcePath.*;
 
 public class ImgurNegativeUploadTest extends BaseTest{
 
-    @Test
-    void uploadSmallFileSizeTest() {
-
+    @ParameterizedTest
+    @DisplayName("Загрузка файла некоректного размера")
+    @EnumSource(value = ResourcePath.class, names = {"FILE_1BITE","FILE_10MB"})
+    void uploadSmallFileSizeTest(ResourcePath path) {
+        String title = path.getTitle();
         given()
-                .multiPart("image", new File(FILE_1BITE.getTitle()))
+                .multiPart("image", new File(title))
                 .expect()
-                .spec(HelperSpec.Error400())
+                .spec(Helper.error400())
                 .when()
-                .post(UPLOAD_FILE)
-                .prettyPeek();
+                .post(UPLOAD_FILE);
     }
 
     @Test
-    void uploadBigFileSizeTest() {
-        given()
-                .multiPart("image", new File(FILE_10MB.getTitle()))
-                .expect()
-                .spec(HelperSpec.Error400())
-                .when()
-                .post(UPLOAD_FILE)
-                .prettyPeek();
-    }
-
-    @Test
+    @DisplayName("Загрузка изображения с расширением tiff")
     void uploadTiffExtensionFileTest() {
         given()
                 .multiPart("image", new File(FILE_TIFF.getTitle()))
                 .expect()
-                .spec(HelperSpec.Error417())
+                .spec(Helper.error417())
                 .when()
-                .post(UPLOAD_FILE)
-                .prettyPeek();
+                .post(UPLOAD_FILE);
     }
 
     @Test
+    @DisplayName("Загрузка изображения с расширением ogg")
     void uploadOggExtensionFileTest() {
         given()
                 .multiPart("video", new File(FILE_OGG.getTitle()))
                 .expect()
-                .spec(HelperSpec.Error400())
+                .spec(Helper.error400())
                 .when()
-                .post(UPLOAD_FILE)
-                .prettyPeek();
+                .post(UPLOAD_FILE);
     }
 
-    @Test
-    void uploadExtensionChangedFileTest() {
+    @ParameterizedTest
+    @DisplayName("Загрузка невалидных файлов")
+    @EnumSource(value = ResourcePath.class, names = {"FILE_CHANGED_EXE","FILE_DOCX"})
+    void uploadExtensionChangedFileTest(ResourcePath path) {
+        String title = path.getTitle();
         given()
-                .multiPart("image", new File(FILE_CHANGED_EXE.getTitle()))
+                .multiPart("image", new File(title))
                 .expect()
-                .spec(HelperSpec.Error417())
+                .spec(Helper.error417())
                 .when()
-                .post(UPLOAD_FILE)
-                .prettyPeek();
-    }
-
-    @Test
-    void uploadNotImageOrVideoFileTest() {
-        given()
-                .multiPart("image", new File(FILE_DOCX.getTitle()))
-                .expect()
-                .spec(HelperSpec.Error417())
-                .when()
-                .post(UPLOAD_FILE)
-                .prettyPeek();
-    }
-
-    @Test
-    void uploadEmptyFileTest() {
-        given()
-                .multiPart("image", FILE_EMPTY)
-                .expect()
-                .spec(HelperSpec.Error400())
-                .when()
-                .post(UPLOAD_FILE)
-                .prettyPeek();
-    }
-
-    public static class HelperSpec {
-        public static ResponseSpecification Error400() {
-            ResponseSpecification spec400 = new ResponseSpecBuilder()
-                    .expectContentType(ContentType.JSON)
-                    .expectBody("success", equalTo(false))
-                    .expectStatusCode(400)
-                    .build();
-            return spec400;
-        }
-
-        public static ResponseSpecification Error417() {
-            ResponseSpecification spec417 = new ResponseSpecBuilder()
-                    .expectContentType(ContentType.JSON)
-                    .expectBody("success", equalTo(false))
-                    .expectStatusCode(417)
-                    .build();
-            return spec417;
-        }
-
-        public static ResponseSpecification Error404() {
-            ResponseSpecification spec417 = new ResponseSpecBuilder()
-                    .expectContentType(ContentType.HTML)
-                    .expectStatusCode(404)
-                    .build();
-            return spec417;
-        }
+                .post(UPLOAD_FILE);
     }
 }
 
